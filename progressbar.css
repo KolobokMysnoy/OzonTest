@@ -23,6 +23,8 @@
     background: conic-gradient(var(--fill-color) var(--progress, 0),
             var(--empty-color) 0);
 
+    transition: background-color ease-in-out 300ms;
+
     &::after {
         display: grid;
         place-items: center;
@@ -32,6 +34,7 @@
 
         width: calc(100% - calc(2 * var(--bar-width)));
 
+        transition: width ease-in-out 300ms;
         place-items: center;
         aspect-ratio: 1;
     }
@@ -41,13 +44,10 @@
 
 
 [role='progressbar'][class*='progressbar_animated__simple'] {
-    background: none;
-    border: var(--bar-width) solid var(--empty-color);
-    border-bottom: none;
-    border-top: var(--bar-width) solid var(--fill-color);
+    background: conic-gradient(var(--fill-color) 30%,
+            var(--empty-color) 0);
 
     animation: simpleSpin 3s linear infinite;
-    transition: border ease-in-out 350ms;
 
     &::after {
         content: '';

@@ -64,7 +64,7 @@ const createHideButton = (hide, open) => {
     })
 }
 
-const createValue = (changeValue, changeToNormal) => {
+const createValueField = (changeValue, changeToNormal) => {
     const valueInput = document.getElementById('value-input');
     valueInput.addEventListener('input', (event) => {
         if (state.renderStyle !== 'Normal') {
@@ -78,7 +78,7 @@ const createValue = (changeValue, changeToNormal) => {
 
     valueInput.addEventListener('change', (event) => {
         let valueToSet = event.currentTarget.value;
-        if (Number(valueToSet) === NaN) return;
+        if (Number(valueToSet) === NaN || valueToSet === '') { valueInput.value = 0; valueToSet = 0; };
 
         if (valueToSet > 100) { valueInput.value = 100; valueToSet = 100; };
         if (valueToSet < 0) { valueInput.value = 0; valueToSet = 0; };
@@ -105,14 +105,14 @@ const createValue = (changeValue, changeToNormal) => {
 
 createHideButton(
     () => {
-        progress.changeState('Hidden').render(placement);
+        progress.changeState('Hidden');
     },
     () => {
-        progress.changeState(state.renderStyle).render(placement);
+        progress.changeState(state.renderStyle);
     }
 );
 
-const progress = ProgressBar('Normal', 100).render(placement).changeValue(10);
+const progress = new ProgressBar('Normal', 100).render(placement).changeValue(10);
 
 createAnimatedButton(
     () => progress.animate(state.renderStyle),
@@ -147,6 +147,7 @@ animateSelect.addEventListener('change', (event) => {
         state.renderStyle = 'Animated';
         progress.animate();
     }
+    state.isHidden = false;
 })
 
 callbacksRenderStyle.push((newRenderStyle) => {
@@ -155,7 +156,7 @@ callbacksRenderStyle.push((newRenderStyle) => {
     }
 })
 
-createValue(
+createValueField(
     (newValue) => { progress.changeValue(Number(newValue)) },
     () => progress.changeState('Normal')
 );

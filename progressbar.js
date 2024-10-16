@@ -6,168 +6,192 @@ const deftaultWidth = 10;
 const simpleAnimation = 'progressbar_animated__simple';
 const pathAnimation = 'progressbar_animated__path';
 
+export const NormalState = 'Normal';
+export const AnimatedState = 'Animated';
+export const AnimatedPathState = 'Animated-path'
+export const HiddenState = 'Hidden';
+
 const getSimpleAnimated = () => {
-    const OutherLook = document.createElement('div');
+    const wrapper = document.createElement('div');
 
-    OutherLook.role = 'progressbar';
-    OutherLook.classList.add(simpleAnimation);
+    wrapper.role = 'progressbar';
+    wrapper.classList.add(simpleAnimation);
 
-    return OutherLook;
+    return wrapper;
 }
 
 const getPathAnimated = (width = 0) => {
-    const OutherLook = document.createElement('div');
+    const wrapper = document.createElement('div');
     const svg = document.createElement('svg');
-
-    OutherLook.append(svg);
+    wrapper.append(svg);
 
     svg.outerHTML = `<svg height="130" width="130">
         <circle class='progress__circle' cx='65' cy='65' pathLength="360" r="${65 - width / 2}" fill="transparent" />
     </svg>`;
 
-    OutherLook.role = 'progressbar';
-    OutherLook.classList.add(pathAnimation);
+    wrapper.role = 'progressbar';
+    wrapper.classList.add(pathAnimation);
 
-
-    return OutherLook;
+    return wrapper;
 }
 
 const getNone = () => {
-    const OutherLook = document.createElement('div');
+    const wrapper = document.createElement('div');
 
-    OutherLook.role = 'progressbar';
-    OutherLook.style.display = 'none';
+    wrapper.role = 'progressbar';
+    wrapper.style.display = 'none';
 
-    return OutherLook;
+    return wrapper;
 }
-
 
 const getNormal = () => {
-    const OutherLook = document.createElement('div');
+    const wrapper = document.createElement('div');
 
-    OutherLook.setAttribute('role', 'progressbar');
-    OutherLook.setAttribute('cur-value', 0);
+    wrapper.setAttribute('role', 'progressbar');
+    wrapper.setAttribute('cur-value', 0);
+    wrapper.style.setProperty('--progress', '0%');
 
-    OutherLook.style.setProperty('--progress', '0%');
-
-    return OutherLook;
+    return wrapper;
 }
 
-export const ProgressBar = (state = null, maxVal = null) => {
-    let max = maxVal ?? 1;
-    let OutherLook;
+export class ProgressBar {
+    #settedFillColor = defaultFillColor;
+    #settedEmptyColor = defaultEmptyColor;
+    #width = deftaultWidth;
+    #progressWrapper = null;
 
-    switch (state) {
-        case 'Animated':
-            OutherLook = getSimpleAnimated();
-            break;
-        case 'Hidden':
-            OutherLook = getNone();
-            break;
-        default:
-            state = 'Normal'
-            OutherLook = getNormal();
-    }
+    #animationStyle = 'simple';
+    #placedElement = null;
+    #whereToPlace = null;
+    #max = 1;
+    #state = NormalState;
 
-    let settedFillColor = defaultFillColor;
-    let settedEmptyColor = defaultEmptyColor;
-    let width = deftaultWidth;
+    constructor(state = null, maxVal = null) {
+        this.#max = maxVal ?? 1;
 
-    let animationStyle = 'simple';
-    let placedElement = null;
-    let whereToPlace = null;
-
-    return {
-        render(placement) {
-            if (!placement) {
-                console.error(`Not correct placement for ProgressBar: ${placement}`);
-                return;
-            }
-            whereToPlace = placement;
-
-            if (placedElement) {
-                placement.removeChild(placedElement);
-            }
-
-            OutherLook.style.setProperty('--empty-color', settedEmptyColor);
-            OutherLook.style.setProperty('--bar-width', width + 'px');
-
-            placedElement = OutherLook;
-            OutherLook.style.setProperty('--fill-color', settedFillColor);
-
-            placement.append(OutherLook);
-            return this;
-        },
-        changeState(newState) {
-            switch (newState) {
-                case 'Animated':
-                    OutherLook = getSimpleAnimated();
-                    break;
-                case 'Hidden':
-                    OutherLook = getNone();
-                    break;
-                default:
-                    newState = 'Normal'
-                    OutherLook = getNormal();
-            }
-            state = newState;
-            if (whereToPlace) return this.render(whereToPlace);
-
-            return this;
-        },
-        animate(newAnimationStyle = null) {
-            if (state.startsWith('Animated')) {
-                state = 'Animated';
-            }
-            if (newAnimationStyle !== animationStyle) {
-                animationStyle = newAnimationStyle
-            }
-
-            switch (animationStyle) {
-                case 'Animated-path':
-                    OutherLook = getPathAnimated(width);
-                    break;
-                default:
-                    OutherLook = getSimpleAnimated();
-            }
-
-            if (whereToPlace) return this.render(whereToPlace);
-
-            return this;
-        },
-        changeValue(newValue) {
-            if (state !== 'Normal') {
-                state = 'Normal';
-            }
-
-            if (newValue == null || newValue === NaN) return this;
-
-            if (newValue > max) {
-                newValue = max;
-            }
-
-            OutherLook.style.setProperty('--progress', `${Math.floor(newValue / max * 100)}%`);
-
-            return this;
-        },
-        changeColors(fillColor = null, emptyColor = null) {
-            if (fillColor && fillColor !== settedFillColor) {
-                settedFillColor = fillColor;
-                OutherLook.style.setProperty('--fill-color', fillColor)
-            }
-
-            if (emptyColor && emptyColor !== settedEmptyColor) {
-                settedEmptyColor = emptyColor;
-                OutherLook.style.setProperty('--empty-color', emptyColor)
-            }
-
-            return this;
-        },
-        changeBarWidth(newWidth) {
-            if (newWidth !== width) {
-                OutherLook.style.setProperty('--bar-width', newWidth + 'px');
-                width = newWidth;
-            }
+        switch (state) {
+            case AnimatedState:
+                this.#progressWrapper = getSimpleAnimated();
+                break;
+            case AnimatedPathState:
+                this.#progressWrapper = getPathAnimated(this.#width);
+                break;
+            case HiddenState:
+                this.#progressWrapper = getNone();
+                break;
+            default:
+                this.#state = NormalState;
+                this.#progressWrapper = getNormal();
         }
     }
+
+    #setVariablesToCSS() {
+        this.#progressWrapper.style.setProperty('--empty-color', this.#settedEmptyColor);
+        this.#progressWrapper.style.setProperty('--bar-width', this.#width + 'px');
+        this.#progressWrapper.style.setProperty('--fill-color', this.#settedFillColor);
+    }
+
+    render(placement) {
+        if (!placement) {
+            console.error(`Not correct placement for ProgressBar: ${placement}`);
+            return;
+        }
+        this.#whereToPlace = placement;
+
+        if (this.#placedElement) {
+            placement.removeChild(this.#placedElement);
+        }
+
+        this.#setVariablesToCSS();
+        this.#placedElement = this.#progressWrapper;
+
+        placement.append(this.#progressWrapper);
+        return this;
+    }
+
+    getElement() {
+        this.#setVariablesToCSS();
+
+        return this.#progressWrapper;
+    }
+
+    changeState(newState) {
+        switch (newState) {
+            case AnimatedState:
+                this.#progressWrapper = getSimpleAnimated();
+                break;
+            case AnimatedPathState:
+                this.#progressWrapper = getPathAnimated(this.#width);
+                break;
+            case HiddenState:
+                this.#progressWrapper = getNone();
+                break;
+            default:
+                newState = NormalState;
+                this.#progressWrapper = getNormal();
+        }
+        this.#state = newState;
+        if (this.#whereToPlace) return this.render(this.#whereToPlace);
+
+        return this;
+    }
+
+    animate(newAnimationStyle = null) {
+        if (this.#state.startsWith(AnimatedState)) {
+            this.#state = AnimatedState;
+        }
+        if (newAnimationStyle !== this.#animationStyle) {
+            this.#animationStyle = newAnimationStyle
+        }
+
+        switch (this.#animationStyle) {
+            case AnimatedState:
+                this.#progressWrapper = getPathAnimated(this.#width);
+                break;
+            default:
+                this.#progressWrapper = getSimpleAnimated();
+        }
+
+        if (this.#whereToPlace) return this.render(this.#whereToPlace);
+
+        return this;
+    }
+
+    changeValue(newValue) {
+        if (this.#state !== NormalState) {
+            this.#state = NormalState;
+        }
+
+        if (newValue == null || newValue === NaN) return this;
+
+        if (newValue > this.#max) {
+            newValue = this.#max;
+        }
+
+        this.#progressWrapper.style.setProperty('--progress', `${Math.floor(newValue / this.#max * 100)}%`);
+
+        return this;
+    }
+
+    changeColors(fillColor = null, emptyColor = null) {
+        if (fillColor && fillColor !== this.#settedFillColor) {
+            this.#settedFillColor = fillColor;
+            this.#progressWrapper.style.setProperty('--fill-color', fillColor)
+        }
+
+        if (emptyColor && emptyColor !== this.#settedEmptyColor) {
+            this.#settedEmptyColor = emptyColor;
+            this.#progressWrapper.style.setProperty('--empty-color', emptyColor)
+        }
+
+        return this;
+    }
+
+    changeBarWidth(newWidth) {
+        if (newWidth !== this.#width) {
+            this.#progressWrapper.style.setProperty('--bar-width', newWidth + 'px');
+            this.#width = newWidth;
+        }
+    }
+
 }

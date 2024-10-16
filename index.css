@@ -177,15 +177,26 @@ main {
   align-items: center;
 }
 
+/* Phone */
 @media only screen and (max-width: 568px) {
   .controls__progress {
     grid-template-rows: 1fr 1fr;
   }
+
+  .progress {
+    gap: 20px;
+    height: 160px;
+  }
 }
 
+/* PC */
 @media only screen and (min-width: 568px) {
   .controls__progress {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .progress {
+    height: 284px;
   }
 }
 
@@ -232,6 +243,7 @@ main {
 }
 
 .controls {
+  max-width: 300px;
   gap: 10px;
   padding: 60px;
   display: flex;
