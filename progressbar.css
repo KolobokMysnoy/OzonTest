@@ -4,38 +4,34 @@
     initial-value: 0%;
 }
 
-*{
+* {
     box-sizing: border-box;
 }
 
 [role='progressbar'] {
-    --text-color: black;
-    --fill-color: orange;
+    --fill-color: #005CFF;
     --empty-color: white;
 
     display: grid;
-    place-items:  center;
+    place-items: center;
     --bar-width: 20px;
-    
+
     aspect-ratio: 1;
     width: 100%;
     border-radius: 50%;
 
-    background: conic-gradient(
-        var(--fill-color) var(--progress, 0),
-        var(--empty-color) 0
-    );
-    
-    &::after{
+    background: conic-gradient(var(--fill-color) var(--progress, 0),
+            var(--empty-color) 0);
+
+    &::after {
         display: grid;
         place-items: center;
-        content: attr(cur-value) ' %';
+        content: '';
         background: var(--empty-color);
-        color: var(--text-color);
         border-radius: inherit;
-        
-        width: calc(100% - var(--bar-width));
-        
+
+        width: calc(100% - calc(2 * var(--bar-width)));
+
         place-items: center;
         aspect-ratio: 1;
     }
@@ -52,7 +48,8 @@
 
     animation: simpleSpin 3s linear infinite;
     transition: border ease-in-out 350ms;
-    &::after{
+
+    &::after {
         content: '';
     }
 }
@@ -62,9 +59,10 @@
     0% {
         transform: rotate(0deg);
     }
-	100% {
+
+    100% {
         transform: rotate(360deg);
-	}
+    }
 }
 
 
@@ -74,12 +72,16 @@
 [role='progressbar'][class*='progressbar_animated__path'] {
     .progress__circle {
         stroke-width: var(--bar-width);
-        stroke-dasharray: calc(3.6 * 30) calc(3.6 * 70);
+        stroke-dasharray: 108 252;
         stroke-dashoffset: 90;
         stroke: var(--fill-color);
         stroke-linecap: round;
-        
+
         animation: pathSpin 3s linear infinite;
+    }
+
+    &::after {
+        content: none;
     }
 }
 
@@ -88,19 +90,23 @@
         stroke-dasharray: 0 360;
         stroke-dashoffset: 90;
     }
+
     10% {
         stroke-dasharray: 98 262;
         stroke-dashoffset: 90;
     }
+
     50% {
         stroke-dasharray: 216 144;
-    } 
+    }
+
     60% {
         stroke-dasharray: 216 144;
         stroke-dashoffset: -50;
     }
-	to {
+
+    to {
         stroke-dasharray: 0 360;
         stroke-dashoffset: -270;
-	}
+    }
 }

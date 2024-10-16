@@ -10,3 +10,10 @@
 [SVG paths video](https://www.youtube.com/watch?v=ULomsOSk4JA&ab_channel=HunorM%C3%A1rtonBorb%C3%A9ly)
 
 [CSS Toggle button](https://www.youtube.com/watch?v=N8BZvfRD_eU&ab_channel=WebDevSimplified) 
+
+
+<!-- 
+When change witgh and call animate animate is bigger
+
+
+ -->

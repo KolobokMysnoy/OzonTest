@@ -1,34 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ozon</title>
     <script src="index.js" type="module" defer></script>
-    <link rel='stylesheet' href="progressbar.css"></style>
-    <link rel='stylesheet' href="index.css"></style>
+    <link rel='stylesheet' href="progressbar.css">
+    </style>
+    <link rel='stylesheet' href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    </style>
 </head>
+
 <body>
     <main>
-        <div class="progress"></div>
-        <div class="controls">
-            <div class="control__wrapper">
-                <input type="checkbox" id="animation-button"/>
-                <label for="animation-button">Animate</label>
+        <article class="customization__placement">
+            <input type="checkbox" id="customization-button" />
+            <label class="ckeckbox__label" for="customization-button">Customization</label>
+        </article>
+        <section class="controls__progress">
+            <div class="progress">
+                <p class="progress__text">Progress</p>
+                <div class="progress__placement"></div>
             </div>
-                <div class="switch-wrap">
+            <div class="controls">
+                <div>
                     <input type="checkbox" id="hide-button" />
-                    <label class="">hide</div>
+                    <label class="ckeckbox__label" for="hide-button">Hide</label>
                 </div>
-            <div class="control__wrapper">
-                <input type="number" id="value-input" class="controls__input" autocomplete="off" value="10" max="100"/>
-                <label for="value-input">Value</label>
+                <div>
+                    <input type="checkbox" id="animation-button" />
+                    <label for="animation-button" class="ckeckbox__label">Animate</label>
+                </div>
+                <div class="control__wrapper">
+                    <input type="number" id="value-input" class="controls__input" autocomplete="off" value="10"
+                        max="100" />
+                    <label for="value-input">Value</label>
+                </div>
+                <div class="control__wrapper">
+                    <input type="number" id="bar-input" class="controls__input" autocomplete="off" value="10" min="1"
+                        max="150" />
+                    <label for="bar-input">Width</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="animation-select" />
+                    <label for="animation-select" class="ckeckbox__label">Path animate</label>
+                </div>
+                <div class="color__placement">
+                    <input type="color" id="color-input" class="controls__color" autocomplete="off" />
+                    <label for="color-input">Color</label>
+                </div>
             </div>
-            <div class="control__wrapper">
-                <input type="number" id="bar-input" class="controls__input" autocomplete="off" value="10" min="1" max="150"/>
-                <label for="bar-input">Width</label>
-            </div>
-        </div>
+        </section>
     </main>
 </body>
+
 </html>

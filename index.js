@@ -1,6 +1,6 @@
 import { ProgressBar } from './progressbar.js'
 
-const placement = document.getElementsByClassName('progress')[0];
+const placement = document.getElementsByClassName('progress__placement')[0];
 
 let state = {
     renderStyle: 'Normal',
@@ -26,7 +26,7 @@ state = new Proxy(state, {
 const createAnimatedButton = (renderAnimated, renderNormal) => {
     const animationButton = document.getElementById('animation-button');
     animationButton.addEventListener('click', () => {
-        if (state.renderStyle === 'Animated') {
+        if (state.renderStyle.startsWith('Animated')) {
             state.renderStyle = 'Normal';
             renderNormal();
         } else {
@@ -37,8 +37,10 @@ const createAnimatedButton = (renderAnimated, renderNormal) => {
     });
 
     callbacksRenderStyle.push((changedRenderStyle) => {
-        if (changedRenderStyle !== 'Animated') {
-            animationButton.value = false;
+        if (!changedRenderStyle.startsWith('Animated')) {
+            animationButton.checked = false;
+        } else {
+            animationButton.checked = true;
         }
     });
 }
@@ -113,8 +115,8 @@ createHideButton(
 const progress = ProgressBar('Normal', 100).render(placement).changeValue(10);
 
 createAnimatedButton(
-    () => progress.animate(),
-    () => { progress.changeState('Normal') }
+    () => progress.animate(state.renderStyle),
+    () => progress.changeState('Normal')
 );
 
 const barInput = document.getElementById('bar-input');
@@ -135,8 +137,51 @@ barInput.addEventListener('change', (event) => {
     progress.changeBarWidth(valueToSet);
 });
 
+
+const animateSelect = document.getElementById('animation-select');
+animateSelect.addEventListener('change', (event) => {
+    if (event.currentTarget.checked) {
+        state.renderStyle = 'Animated-path';
+        progress.animate('Animated-path');
+    } else {
+        state.renderStyle = 'Animated';
+        progress.animate();
+    }
+})
+
+callbacksRenderStyle.push((newRenderStyle) => {
+    if (newRenderStyle !== 'Animated-path') {
+        animateSelect.checked = false;
+    }
+})
+
 createValue(
     (newValue) => { progress.changeValue(Number(newValue)) },
     () => progress.changeState('Normal')
 );
 
+const colorPicker = document.getElementById('color-input');
+const colorPlacement = document.getElementsByClassName('color__placement')[0];
+
+colorPicker.addEventListener('change', (event) => {
+    progress.changeColors(event.currentTarget.value);
+    console.log(event.currentTarget.nextSibling);
+    colorPlacement.style.setProperty('--picked-color', event.currentTarget.value);
+})
+
+const customization = document.getElementById('customization-button');
+customization.addEventListener('change', (event) => {
+    if (event.currentTarget.checked) {
+        barInput.parentElement.style.display = '';
+        animateSelect.parentElement.style.display = '';
+        colorPicker.parentElement.style.display = '';
+    } else {
+        barInput.parentElement.style.display = 'none';
+        animateSelect.parentElement.style.display = 'none';
+        colorPicker.parentElement.style.display = 'none';
+    }
+})
+
+animateSelect.parentElement.style.display = 'none';
+barInput.parentElement.style.display = 'none';
+colorPicker.parentElement.style.display = 'none';
