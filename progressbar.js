@@ -29,6 +29,10 @@ class ProgressBar extends HTMLElement {
     #shadow = null;
 
     #max = 1;
+    #sizeRect;
+    #ratio = 1;
+
+    #observer = undefined;
 
     constructor() {
         super();
@@ -55,10 +59,7 @@ class ProgressBar extends HTMLElement {
             case AnimatedPathState:
                 const svg = document.createElement('svg');
                 this.#progressWrapper.append(svg);
-
-                svg.outerHTML = `<svg height="130" width="130">
-                    <circle class='progress__circle' cx='65' cy='65' pathLength="360" r="${65 - this.#width / 2}" fill="transparent" />
-                </svg>`;
+                svg.outerHTML = this.getAnimatedSVG();
 
                 this.#progressWrapper.classList.add(pathAnimation);
                 break;
@@ -84,6 +85,30 @@ class ProgressBar extends HTMLElement {
         this.#shadow.append(this.#progressWrapper);
         this.#shadow.innerHTML += `<style> @import './progressbar.css' </style>`
         this.#progressWrapper = this.#shadow.firstChild;
+
+        if (this.#observer) {
+            this.#observer.disconnect();
+        }
+
+        // If change size of our progress bar
+        this.#observer = new ResizeObserver((entries) => {
+            entries.forEach((entry) => {
+                this.#sizeRect = entry.contentRect;
+                this.#ratio = entry.contentRect.width / 100;
+                this.#progressWrapper.style.setProperty('--ratio', this.#ratio);
+            })
+        })
+
+        this.#observer.observe(this.#progressWrapper);
+    }
+
+    getAnimatedSVG() {
+        const settedWidth = this.#width / this.#ratio / 2;
+
+        return `<svg class="path__progress" viewBox="-50 -50 100 100">
+                    <circle class='progress__circle_grey' pathLength="360" r="${50 - settedWidth}" fill="transparent" />
+                    <circle class='progress__circle' pathLength="360" r="${50 - settedWidth}" fill="transparent" />
+                </svg>`;
     }
 
     setVariablesToCSS() {
@@ -120,11 +145,7 @@ class ProgressBar extends HTMLElement {
             } else {
                 const svg = document.createElement('svg');
                 this.#progressWrapper.append(svg);
-
-                svg.outerHTML = `<svg height="130" width="130">
-                    <circle class='progress__circle_grey' cx='65' cy='65' pathLength="360" r="${65 - this.#width / 2}" fill="transparent" />
-                    <circle class='progress__circle' cx='65' cy='65' pathLength="360" r="${65 - this.#width / 2}" fill="transparent" />
-                </svg>`;
+                svg.outerHTML = this.getAnimatedSVG();
 
                 this.#progressWrapper.classList.add(pathAnimation);
             }
@@ -132,10 +153,14 @@ class ProgressBar extends HTMLElement {
 
         if (name === 'pen-width') {
             let settedWidth = newValue;
-            if (settedWidth > 130) settedWidth = 130;
+            if (settedWidth > this.maxPenWidth) settedWidth = this.maxPenWidth;
 
             this.#width = newValue;
             this.#progressWrapper.style.setProperty('--bar-width', this.#width + 'px');
+
+            if (this.animation === 'Animated-path') {
+                this.animation = 'Animated-path';
+            }
         }
 
         if (name === 'fill-color') {
@@ -169,38 +194,38 @@ class ProgressBar extends HTMLElement {
         this.setAttribute('pen-width', newValue);
     }
     get penWidth() {
-        this.getAttribute('pen-width');
+        return this.getAttribute('pen-width');
     }
     get maxPenWidth() {
-        return 130;
+        return this.#ratio * 50;
     }
 
     set max(newValue) {
         this.setAttribute('max', newValue);
     }
     get max() {
-        this.getAttribute('max');
+        return this.getAttribute('max');
     }
 
     set fillColor(newValue) {
         this.setAttribute('fill-color', newValue);
     }
     get fillColor() {
-        this.getAttribute('fill-color');
+        return this.getAttribute('fill-color');
     }
 
     set hidden(newValue) {
         this.setAttribute('ishidden', newValue);
     }
     get hidden() {
-        this.getAttribute('ishidden');
+        return this.getAttribute('ishidden');
     }
 
     set animation(newValue) {
         this.setAttribute('animation', newValue);
     }
     get animation() {
-        this.getAttribute('animation');
+        return this.getAttribute('animation');
     }
 }
 

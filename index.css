@@ -1,3 +1,4 @@
+/* Remove default styles of browser */
 html,
 body,
 div,
@@ -130,13 +131,12 @@ table {
 }
 
 
+* {
+  box-sizing: border-box;
+}
 
 
-
-
-
-
-/* START HERE */
+/* STYLES START HERE */
 html {
   --size-of-input: 44px;
 }
@@ -185,6 +185,8 @@ main {
 
   .progress {
     gap: 20px;
+    min-width: 200px;
+    width: 100%;
   }
 }
 
@@ -219,6 +221,12 @@ main {
   aspect-ratio: 1;
 }
 
+.controls {
+  max-width: 300px;
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+}
 
 .controls__input {
   text-align: center;
@@ -239,14 +247,6 @@ main {
   display: grid;
   align-items: center;
   grid-template-columns: 2fr 3fr;
-}
-
-.controls {
-  max-width: 300px;
-  gap: 10px;
-  padding: 60px;
-  display: flex;
-  flex-direction: column;
 }
 
 
@@ -277,6 +277,7 @@ input[type="color"]+label::before {
   display: grid;
   grid-template-columns: 2fr 3fr;
 }
+
 
 /* SWITCH */
 

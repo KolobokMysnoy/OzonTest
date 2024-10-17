@@ -1,3 +1,4 @@
+/* For transition */
 @property --progress {
     syntax: "<length-percentage>";
     inherits: false;
@@ -8,13 +9,15 @@
     box-sizing: border-box;
 }
 
+/* Percent Progress bar */
 [role='progressbar'] {
     --fill-color: #005CFF;
     --empty-color: #EAF0F6;
+    --bar-width: 20px;
+    --ratio: 2;
 
     display: grid;
     place-items: center;
-    --bar-width: 20px;
 
     aspect-ratio: 1;
     width: 100%;
@@ -44,6 +47,7 @@
 }
 
 
+/* Simple rotation */
 [role='progressbar'][class*='progressbar_animated__simple'] {
     background: conic-gradient(var(--fill-color) 30%,
             var(--empty-color) 0);
@@ -67,14 +71,12 @@
 }
 
 
-
-/* PATH */
-
+/* Path rotation */
 [role='progressbar'][class*='progressbar_animated__path'] {
     background: none;
 
     .progress__circle {
-        stroke-width: var(--bar-width);
+        stroke-width: calc(var(--bar-width) / var(--ratio));
         stroke-dasharray: 108 252;
         stroke-dashoffset: 90;
         stroke: var(--fill-color);
@@ -85,12 +87,18 @@
 
     .progress__circle_grey {
         stroke: var(--empty-color);
-        stroke-width: var(--bar-width);
+        stroke-width: calc(var(--bar-width) / var(--ratio));
     }
 
     &::after {
         content: none;
     }
+}
+
+.path__progress {
+    display: flex;
+    width: 100%;
+    aspect-ratio: 1;
 }
 
 @keyframes pathSpin {
@@ -117,9 +125,4 @@
         stroke-dasharray: 0 360;
         stroke-dashoffset: -270;
     }
-}
-
-my-progress-bar {
-    width: 100px;
-    aspect-ratio: 1;
 }
