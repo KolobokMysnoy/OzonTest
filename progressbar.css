@@ -10,7 +10,7 @@
 
 [role='progressbar'] {
     --fill-color: #005CFF;
-    --empty-color: white;
+    --empty-color: #EAF0F6;
 
     display: grid;
     place-items: center;
@@ -25,11 +25,12 @@
 
     transition: background-color ease-in-out 300ms;
 
+
     &::after {
         display: grid;
         place-items: center;
         content: '';
-        background: var(--empty-color);
+        background: white;
         border-radius: inherit;
 
         width: calc(100% - calc(2 * var(--bar-width)));
@@ -70,6 +71,8 @@
 /* PATH */
 
 [role='progressbar'][class*='progressbar_animated__path'] {
+    background: none;
+
     .progress__circle {
         stroke-width: var(--bar-width);
         stroke-dasharray: 108 252;
@@ -78,6 +81,11 @@
         stroke-linecap: round;
 
         animation: pathSpin 3s linear infinite;
+    }
+
+    .progress__circle_grey {
+        stroke: var(--empty-color);
+        stroke-width: var(--bar-width);
     }
 
     &::after {
@@ -109,4 +117,9 @@
         stroke-dasharray: 0 360;
         stroke-dashoffset: -270;
     }
+}
+
+my-progress-bar {
+    width: 100px;
+    aspect-ratio: 1;
 }

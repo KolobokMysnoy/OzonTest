@@ -1,7 +1,3 @@
-import { ProgressBar } from './progressbar.js'
-
-const placement = document.getElementsByClassName('progress__placement')[0];
-
 let state = {
     renderStyle: 'Normal',
     isHidden: false,
@@ -105,18 +101,18 @@ const createValueField = (changeValue, changeToNormal) => {
 
 createHideButton(
     () => {
-        progress.changeState('Hidden');
+        progress.hidden = 'true';
     },
     () => {
-        progress.changeState(state.renderStyle);
+        progress.hidden = 'false';
     }
 );
 
-const progress = new ProgressBar('Normal', 100).render(placement).changeValue(10);
+const progress = document.querySelector('my-progress-bar');
 
 createAnimatedButton(
-    () => progress.animate(state.renderStyle),
-    () => progress.changeState('Normal')
+    () => progress.animation = state.renderStyle,
+    () => progress.animation = ''
 );
 
 const barInput = document.getElementById('bar-input');
@@ -125,16 +121,23 @@ barInput.addEventListener('input', (event) => {
     if (Number(valueToSet) === NaN) return;
 
     if (valueToSet < 0) { barInput.value = 1; valueToSet = 1; };
-    progress.changeBarWidth(Number(event.currentTarget.value) ?? 1);
+    if (valueToSet > progress.maxPenWidth) {
+        valueToSet = progress.maxPenWidth;
+    }
+    progress.penWidth = Number(event.currentTarget.value) ?? 1;
 });
 
 barInput.addEventListener('change', (event) => {
     let valueToSet = event.currentTarget.value;
     if (Number(valueToSet) === NaN) return;
 
-    if (valueToSet > 150) { barInput.value = 150; valueToSet = 150; };
+    if (valueToSet > progress.maxPenWidth) {
+        barInput.value = progress.maxPenWidth;
+        valueToSet = progress.maxPenWidth;
+    };
+
     if (valueToSet < 1) { barInput.value = 1; valueToSet = 1; };
-    progress.changeBarWidth(valueToSet);
+    progress.penWidth = valueToSet;
 });
 
 
@@ -142,10 +145,10 @@ const animateSelect = document.getElementById('animation-select');
 animateSelect.addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
         state.renderStyle = 'Animated-path';
-        progress.animate('Animated-path');
+        progress.animation = 'Animated-path';
     } else {
         state.renderStyle = 'Animated';
-        progress.animate();
+        progress.animation = 'Animated';
     }
     state.isHidden = false;
 })
@@ -157,16 +160,15 @@ callbacksRenderStyle.push((newRenderStyle) => {
 })
 
 createValueField(
-    (newValue) => { progress.changeValue(Number(newValue)) },
-    () => progress.changeState('Normal')
+    (newValue) => { progress.value = Number(newValue) },
+    () => progress.animation = ''
 );
 
 const colorPicker = document.getElementById('color-input');
 const colorPlacement = document.getElementsByClassName('color__placement')[0];
 
 colorPicker.addEventListener('change', (event) => {
-    progress.changeColors(event.currentTarget.value);
-    console.log(event.currentTarget.nextSibling);
+    progress.fillColor = event.currentTarget.value;
     colorPlacement.style.setProperty('--picked-color', event.currentTarget.value);
 })
 

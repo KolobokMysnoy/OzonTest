@@ -1,197 +1,207 @@
 const defaultFillColor = '#005CFF';
-const defaultEmptyColor = 'white';
+const defaultEmptyColor = '#EAF0F6';
 
 const deftaultWidth = 10;
 
 const simpleAnimation = 'progressbar_animated__simple';
 const pathAnimation = 'progressbar_animated__path';
 
-export const NormalState = 'Normal';
-export const AnimatedState = 'Animated';
-export const AnimatedPathState = 'Animated-path'
-export const HiddenState = 'Hidden';
+const AnimatedState = 'Animated';
+const AnimatedPathState = 'Animated-path'
 
-const getSimpleAnimated = () => {
-    const wrapper = document.createElement('div');
 
-    wrapper.role = 'progressbar';
-    wrapper.classList.add(simpleAnimation);
+class ProgressBar extends HTMLElement {
+    static observedAttributes = [
+        "pen-width",
+        "value",
+        "max",
+        'fill-color',
+        'animation',
+        'ishidden'
+    ];
 
-    return wrapper;
-}
-
-const getPathAnimated = (width = 0) => {
-    const wrapper = document.createElement('div');
-    const svg = document.createElement('svg');
-    wrapper.append(svg);
-
-    svg.outerHTML = `<svg height="130" width="130">
-        <circle class='progress__circle' cx='65' cy='65' pathLength="360" r="${65 - width / 2}" fill="transparent" />
-    </svg>`;
-
-    wrapper.role = 'progressbar';
-    wrapper.classList.add(pathAnimation);
-
-    return wrapper;
-}
-
-const getNone = () => {
-    const wrapper = document.createElement('div');
-
-    wrapper.role = 'progressbar';
-    wrapper.style.display = 'none';
-
-    return wrapper;
-}
-
-const getNormal = () => {
-    const wrapper = document.createElement('div');
-
-    wrapper.setAttribute('role', 'progressbar');
-    wrapper.setAttribute('cur-value', 0);
-    wrapper.style.setProperty('--progress', '0%');
-
-    return wrapper;
-}
-
-export class ProgressBar {
     #settedFillColor = defaultFillColor;
     #settedEmptyColor = defaultEmptyColor;
+
     #width = deftaultWidth;
+
     #progressWrapper = null;
+    #shadow = null;
 
-    #animationStyle = 'simple';
-    #placedElement = null;
-    #whereToPlace = null;
     #max = 1;
-    #state = NormalState;
 
-    constructor(state = null, maxVal = null) {
-        this.#max = maxVal ?? 1;
+    constructor() {
+        super();
 
-        switch (state) {
-            case AnimatedState:
-                this.#progressWrapper = getSimpleAnimated();
-                break;
-            case AnimatedPathState:
-                this.#progressWrapper = getPathAnimated(this.#width);
-                break;
-            case HiddenState:
-                this.#progressWrapper = getNone();
-                break;
-            default:
-                this.#state = NormalState;
-                this.#progressWrapper = getNormal();
-        }
+        this.#progressWrapper = document.createElement('div');
+        this.#progressWrapper.setAttribute('role', 'progressbar');
+
+        this.#shadow = this.attachShadow({ mode: "open" });
     }
 
-    #setVariablesToCSS() {
+    connectedCallback() {
+        if (this.getAttribute('ishidden') == 'true') {
+            this.#progressWrapper.display = 'none';
+        }
+
+        if (this.getAttribute('pen-width')) {
+            this.#width = this.getAttribute('pen-width');
+        }
+
+        switch (this.getAttribute('animation')) {
+            case AnimatedState:
+                this.#progressWrapper.classList.add(simpleAnimation);
+                break;
+            case AnimatedPathState:
+                const svg = document.createElement('svg');
+                this.#progressWrapper.append(svg);
+
+                svg.outerHTML = `<svg height="130" width="130">
+                    <circle class='progress__circle' cx='65' cy='65' pathLength="360" r="${65 - this.#width / 2}" fill="transparent" />
+                </svg>`;
+
+                this.#progressWrapper.classList.add(pathAnimation);
+                break;
+        }
+
+        if (this.getAttribute('value')) {
+            let settedValue = Number(this.getAttribute('value'));
+            if (settedValue == NaN) settedValue = 0;
+
+            if (settedValue > this.#max) {
+                settedValue = this.#max;
+            };
+
+            this.#progressWrapper.style.setProperty('--progress', `${settedValue / this.#max * 100}%`);
+        }
+
+        if (this.getAttribute('max')) {
+            this.#max = this.getAttribute('max');
+        }
+
+        this.setVariablesToCSS();
+
+        this.#shadow.append(this.#progressWrapper);
+        this.#shadow.innerHTML += `<style> @import './progressbar.css' </style>`
+        this.#progressWrapper = this.#shadow.firstChild;
+    }
+
+    setVariablesToCSS() {
         this.#progressWrapper.style.setProperty('--empty-color', this.#settedEmptyColor);
         this.#progressWrapper.style.setProperty('--bar-width', this.#width + 'px');
         this.#progressWrapper.style.setProperty('--fill-color', this.#settedFillColor);
     }
 
-    render(placement) {
-        if (!placement) {
-            console.error(`Not correct placement for ProgressBar: ${placement}`);
-            return;
-        }
-        this.#whereToPlace = placement;
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (this.#progressWrapper == null || this.#progressWrapper.classList == null) return;
 
-        if (this.#placedElement) {
-            placement.removeChild(this.#placedElement);
-        }
-
-        this.#setVariablesToCSS();
-        this.#placedElement = this.#progressWrapper;
-
-        placement.append(this.#progressWrapper);
-        return this;
-    }
-
-    getElement() {
-        this.#setVariablesToCSS();
-
-        return this.#progressWrapper;
-    }
-
-    changeState(newState) {
-        switch (newState) {
-            case AnimatedState:
-                this.#progressWrapper = getSimpleAnimated();
-                break;
-            case AnimatedPathState:
-                this.#progressWrapper = getPathAnimated(this.#width);
-                break;
-            case HiddenState:
-                this.#progressWrapper = getNone();
-                break;
-            default:
-                newState = NormalState;
-                this.#progressWrapper = getNormal();
-        }
-        this.#state = newState;
-        if (this.#whereToPlace) return this.render(this.#whereToPlace);
-
-        return this;
-    }
-
-    animate(newAnimationStyle = null) {
-        if (this.#state.startsWith(AnimatedState)) {
-            this.#state = AnimatedState;
-        }
-        if (newAnimationStyle !== this.#animationStyle) {
-            this.#animationStyle = newAnimationStyle
+        if (name === 'animation' && oldValue) {
+            if (oldValue === AnimatedState) {
+                this.#progressWrapper.classList.remove(simpleAnimation);
+            } else {
+                this.#progressWrapper.classList.remove(pathAnimation);
+                if (this.#progressWrapper.firstChild) {
+                    this.#progressWrapper.removeChild(this.#progressWrapper.firstChild);
+                }
+            }
         }
 
-        switch (this.#animationStyle) {
-            case AnimatedState:
-                this.#progressWrapper = getPathAnimated(this.#width);
-                break;
-            default:
-                this.#progressWrapper = getSimpleAnimated();
+        if (name === 'ishidden') {
+            if (newValue === 'true') {
+                this.#progressWrapper.style.display = 'none';
+            } else {
+                this.#progressWrapper.style.display = '';
+            }
         }
 
-        if (this.#whereToPlace) return this.render(this.#whereToPlace);
+        if (name === 'animation' && newValue) {
+            if (newValue === AnimatedState) {
+                this.#progressWrapper.classList.add(simpleAnimation);
+            } else {
+                const svg = document.createElement('svg');
+                this.#progressWrapper.append(svg);
 
-        return this;
-    }
+                svg.outerHTML = `<svg height="130" width="130">
+                    <circle class='progress__circle_grey' cx='65' cy='65' pathLength="360" r="${65 - this.#width / 2}" fill="transparent" />
+                    <circle class='progress__circle' cx='65' cy='65' pathLength="360" r="${65 - this.#width / 2}" fill="transparent" />
+                </svg>`;
 
-    changeValue(newValue) {
-        if (this.#state !== NormalState) {
-            this.#state = NormalState;
+                this.#progressWrapper.classList.add(pathAnimation);
+            }
         }
 
-        if (newValue == null || newValue === NaN) return this;
+        if (name === 'pen-width') {
+            let settedWidth = newValue;
+            if (settedWidth > 130) settedWidth = 130;
 
-        if (newValue > this.#max) {
-            newValue = this.#max;
+            this.#width = newValue;
+            this.#progressWrapper.style.setProperty('--bar-width', this.#width + 'px');
         }
 
-        this.#progressWrapper.style.setProperty('--progress', `${Math.floor(newValue / this.#max * 100)}%`);
-
-        return this;
-    }
-
-    changeColors(fillColor = null, emptyColor = null) {
-        if (fillColor && fillColor !== this.#settedFillColor) {
-            this.#settedFillColor = fillColor;
-            this.#progressWrapper.style.setProperty('--fill-color', fillColor)
+        if (name === 'fill-color') {
+            this.#settedFillColor = newValue;
+            this.#progressWrapper.style.setProperty('--fill-color', this.#settedFillColor);
         }
 
-        if (emptyColor && emptyColor !== this.#settedEmptyColor) {
-            this.#settedEmptyColor = emptyColor;
-            this.#progressWrapper.style.setProperty('--empty-color', emptyColor)
+        if (name === 'max') {
+            this.#max = newValue;
         }
 
-        return this;
-    }
+        if (name === 'value') {
+            let settedValue = Number(newValue);
+            if (settedValue == NaN) settedValue = 0;
+            if (settedValue > this.#max) {
+                settedValue = this.#max;
+            };
 
-    changeBarWidth(newWidth) {
-        if (newWidth !== this.#width) {
-            this.#progressWrapper.style.setProperty('--bar-width', newWidth + 'px');
-            this.#width = newWidth;
+            this.#progressWrapper.style.setProperty('--progress', `${settedValue / this.#max * 100}%`);
         }
     }
 
+    set value(newValue) {
+        this.setAttribute('value', newValue);
+    }
+    get value() {
+        this.getAttribute('value');
+    }
+
+    set penWidth(newValue) {
+        this.setAttribute('pen-width', newValue);
+    }
+    get penWidth() {
+        this.getAttribute('pen-width');
+    }
+    get maxPenWidth() {
+        return 130;
+    }
+
+    set max(newValue) {
+        this.setAttribute('max', newValue);
+    }
+    get max() {
+        this.getAttribute('max');
+    }
+
+    set fillColor(newValue) {
+        this.setAttribute('fill-color', newValue);
+    }
+    get fillColor() {
+        this.getAttribute('fill-color');
+    }
+
+    set hidden(newValue) {
+        this.setAttribute('ishidden', newValue);
+    }
+    get hidden() {
+        this.getAttribute('ishidden');
+    }
+
+    set animation(newValue) {
+        this.setAttribute('animation', newValue);
+    }
+    get animation() {
+        this.getAttribute('animation');
+    }
 }
+
+customElements.define("my-progress-bar", ProgressBar);
