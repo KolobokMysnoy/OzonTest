@@ -2,37 +2,25 @@ const progress = document.querySelector('my-progress-bar');
 
 
 const valueInput = document.getElementById('value-input');
-valueInput.addEventListener('input', (event) => {
+const checkValue = (event) => {
     if (progress.animation !== '') {
         progress.animation = '';
     }
     let valueToSet = Number(event.currentTarget.value);
     if (valueToSet < 0) {
-        valueInput.value = 0;
         valueToSet = 0;
     }
     if (valueToSet > progress.max) {
-        valueInput.value = progress.max;
         valueToSet = progress.max;
     }
-    progress.value = Number(event.currentTarget.value) ?? 0
-});
+    valueInput.value = valueToSet;
 
-valueInput.addEventListener('change', (event) => {
-    let valueToSet = event.currentTarget.value;
-    if (Number(valueToSet) === NaN || valueToSet === '') { valueInput.value = 0; valueToSet = 0; };
+    progress.value = valueToSet;
+};
 
-    if (valueToSet < 0) {
-        valueInput.value = 0;
-        valueToSet = 0;
-    }
-    if (valueToSet > progress.max) {
-        valueInput.value = progress.max;
-        valueToSet = progress.max;
-    }
+valueInput.addEventListener('input', checkValue);
 
-    progress.value = Number(event.currentTarget.value) ?? 0
-});
+valueInput.addEventListener('change', checkValue);
 
 
 const animationButton = document.getElementById('animation-button');
@@ -52,36 +40,24 @@ hideButton.addEventListener('click', () => {
 
 
 const barInput = document.getElementById('bar-input');
-barInput.addEventListener('input', (event) => {
-    let valueToSet = event.currentTarget.value;
-    if (Number(valueToSet) === NaN) return;
+const checkBar = (event) => {
+    let valueToSet = Number(event.currentTarget.value);
+    if (Number(valueToSet) === NaN) {
+        valueToSet = 0;
+    };
 
     if (valueToSet < 0) {
-        barInput.value = 1;
         valueToSet = 1;
     };
     if (valueToSet > progress.maxPenWidth) {
-        barInput.value = progress.maxPenWidth;
         valueToSet = progress.maxPenWidth;
     }
-    progress.penWidth = Number(valueToSet) ?? 1;
-});
+    barInput.value = valueToSet;
 
-barInput.addEventListener('change', (event) => {
-    let valueToSet = event.currentTarget.value;
-    if (Number(valueToSet) === NaN) return;
-
-    if (valueToSet > progress.maxPenWidth) {
-        barInput.value = progress.maxPenWidth;
-        valueToSet = progress.maxPenWidth;
-    };
-
-    if (valueToSet < 1) {
-        barInput.value = 1;
-        valueToSet = 1;
-    };
     progress.penWidth = valueToSet;
-});
+}
+barInput.addEventListener('input', checkBar);
+barInput.addEventListener('change', checkBar);
 
 
 const animateSelect = document.getElementById('animation-select');
@@ -140,7 +116,6 @@ const observer = new MutationObserver((records) => {
         }
 
         if (attributeName === 'ishidden') {
-            console.log(record.target.getAttribute(attributeName))
             hideButton.checked = record.target.getAttribute(attributeName) === 'true';
         }
 
