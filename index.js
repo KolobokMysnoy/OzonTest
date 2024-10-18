@@ -6,7 +6,15 @@ valueInput.addEventListener('input', (event) => {
     if (progress.animation !== '') {
         progress.animation = '';
     }
-
+    let valueToSet = Number(event.currentTarget.value);
+    if (valueToSet < 0) {
+        valueInput.value = 0;
+        valueToSet = 0;
+    }
+    if (valueToSet > progress.max) {
+        valueInput.value = progress.max;
+        valueToSet = progress.max;
+    }
     progress.value = Number(event.currentTarget.value) ?? 0
 });
 
@@ -14,8 +22,14 @@ valueInput.addEventListener('change', (event) => {
     let valueToSet = event.currentTarget.value;
     if (Number(valueToSet) === NaN || valueToSet === '') { valueInput.value = 0; valueToSet = 0; };
 
-    if (valueToSet > 100) { valueInput.value = 100; valueToSet = 100; };
-    if (valueToSet < 0) { valueInput.value = 0; valueToSet = 0; };
+    if (valueToSet < 0) {
+        valueInput.value = 0;
+        valueToSet = 0;
+    }
+    if (valueToSet > progress.max) {
+        valueInput.value = progress.max;
+        valueToSet = progress.max;
+    }
 
     progress.value = Number(event.currentTarget.value) ?? 0
 });
@@ -42,11 +56,15 @@ barInput.addEventListener('input', (event) => {
     let valueToSet = event.currentTarget.value;
     if (Number(valueToSet) === NaN) return;
 
-    if (valueToSet < 0) { barInput.value = 1; valueToSet = 1; };
+    if (valueToSet < 0) {
+        barInput.value = 1;
+        valueToSet = 1;
+    };
     if (valueToSet > progress.maxPenWidth) {
+        barInput.value = progress.maxPenWidth;
         valueToSet = progress.maxPenWidth;
     }
-    progress.penWidth = Number(event.currentTarget.value) ?? 1;
+    progress.penWidth = Number(valueToSet) ?? 1;
 });
 
 barInput.addEventListener('change', (event) => {
@@ -58,7 +76,10 @@ barInput.addEventListener('change', (event) => {
         valueToSet = progress.maxPenWidth;
     };
 
-    if (valueToSet < 1) { barInput.value = 1; valueToSet = 1; };
+    if (valueToSet < 1) {
+        barInput.value = 1;
+        valueToSet = 1;
+    };
     progress.penWidth = valueToSet;
 });
 
